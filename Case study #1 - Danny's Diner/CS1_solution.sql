@@ -13,7 +13,7 @@ GROUP BY
 -- 2. How many days has each customer visited the restaurant?
 SELECT 
 	sales.customer_id 
-	,COUNT(DISTINCT sales.order_date)
+	,COUNT(DISTINCT sales.order_date) AS visit_count
 FROM CS1_sales sales
 GROUP BY
 	sales.customer_id;
