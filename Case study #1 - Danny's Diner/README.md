@@ -67,7 +67,8 @@ GROUP BY
 |B          |curry       |
 |C          |ramen       |
 
--- 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+### 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+```SQL
 SELECT 
 	menu.product_name  
 	,COUNT(sales.customer_id) AS popular_order
@@ -79,8 +80,14 @@ GROUP BY
 ORDER BY 
 	popular_order DESC
 LIMIT 1;
+```
+#### Output
+|product_name|popular_order|
+|------------|-------------|
+|ramen       |            8|
 
--- 5. Which item was the most popular for each customer?
+### 5. Which item was the most popular for each customer?
+```SQL
 WITH order_ranking AS (
 	SELECT 
 		sales.customer_id 
@@ -106,8 +113,16 @@ WHERE ranking.ranking = 1
 GROUP BY 
 	ranking.customer_id
 	,ranking.order_count;
+```
+#### Output
+|customer_id|most_popular_orders|order_count|
+|-----------|-------------------|-----------|
+|A          |ramen              |          3|
+|B          |sushi, ramen, curry|          2|
+|C          |ramen              |          3|
 
--- 6. Which item was purchased first by the customer after they became a member?\
+### 6. Which item was purchased first by the customer after they became a member?\
+```SQL
 WITH first_member_order AS (
 	SELECT 
 		sales.customer_id 
@@ -131,8 +146,15 @@ SELECT
 	,product_name
 FROM first_member_order 
 WHERE ranking = 1;
+```
+#### Output
+|customer_id|product_name|
+|-----------|------------|
+|A          |ramen       |
+|B          |sushi       |
 
--- 7. Which item was purchased just before the customer became a member?
+### 7. Which item was purchased just before the customer became a member?
+```SQL
 WITH last_order AS (
 	SELECT  
 		sales.customer_id 
@@ -153,11 +175,17 @@ WITH last_order AS (
 
 SELECT 
 	customer_id
-	,GROUP_CONCAT(product_name, ', ')
+	,GROUP_CONCAT(product_name, ', ') AS purchase_before_member
 FROM last_order 
 WHERE ranking = 1
 GROUP BY 
 	customer_id;
+```
+#### Output
+|customer_id|purchase_before_member|
+|-----------|----------------------|
+|A          |curry, sushi          |
+|B          |sushi                 |
 
 -- 8. What is the total items and amount spent for each member before they became a member?
 SELECT
