@@ -1,4 +1,11 @@
-# CASE STUDY #1: DANNY'S DINER
+# CASE STUDY #1 - DANNY'S DINER
+## General information
+**Case study source:** [Case Study #1 - Danny's Diner](https://8weeksqlchallenge.com/case-study-1/)
+
+**Problem:** Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns, how much money they’ve spent and also which menu items are their favourite. Having this deeper connection with his customers will help him deliver a better and more personalised experience for his loyal customers.
+
+**Entity relationship diagram:**
+
 
 ## Questions and Solutions
 ### 1. What is the total amount each customer spent at the restaurant?
