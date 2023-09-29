@@ -128,7 +128,7 @@ WITH last_order AS (
 
 SELECT 
 	customer_id
-	,GROUP_CONCAT(product_name, ', ')
+	,GROUP_CONCAT(product_name, ', ') AS purchase_before_member
 FROM last_order 
 WHERE ranking = 1
 GROUP BY 
