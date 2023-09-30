@@ -26,7 +26,7 @@ erDiagram
         Date join_date
     }
 MEMBERS ||--|{ SALES : do
-SALES ||--|{ MENU : contain
+MENU ||--|{ SALES : contain
 ```
 
 ## Questions and Solutions
