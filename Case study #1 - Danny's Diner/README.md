@@ -25,8 +25,8 @@ erDiagram
         Int customer_id
         Date join_date
     }
-MEMBERS ||--|{ SALES : does
-SALES ||--|{ MENU : contains
+MEMBERS ||--|{ SALES : do
+SALES ||--|{ MENU : contain
 ```
 
 ## Questions and Solutions
