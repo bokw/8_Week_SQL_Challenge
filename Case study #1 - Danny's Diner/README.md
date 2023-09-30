@@ -48,6 +48,8 @@ GROUP BY
 |B          |                74|
 |C          |                36|
 
+Customer A spent 76 monetary units, customer B - 74 and customer C - 36.
+
 ### 2. How many days has each customer visited the restaurant?
 ```SQL
 SELECT 
@@ -63,6 +65,8 @@ GROUP BY
 |A          |          4|
 |B          |          6|
 |C          |          2|
+
+Customer A visited establishment 4 times, customer B - 6 times, customer C - 2 times.
 
 ### 3. What was the first item from the menu purchased by each customer?
 ```SQL
@@ -96,6 +100,8 @@ GROUP BY
 |B          |curry       |
 |C          |ramen       |
 
+Customer A on the same day when he visited establishment for the first time purchased sushi and curry, customer B - curry and customer C - ramen.
+
 ### 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
 ```SQL
 SELECT 
@@ -114,6 +120,8 @@ LIMIT 1;
 |product_name|popular_order|
 |------------|-------------|
 |ramen       |            8|
+
+The most popular item is ramen, in total it was purchased 8 times.
 
 ### 5. Which item was the most popular for each customer?
 ```SQL
@@ -150,6 +158,8 @@ GROUP BY
 |B          |sushi, ramen, curry|          2|
 |C          |ramen              |          3|
 
+Customer A and C enjoy their ramen, they had purchased it 3 times each. Customer B likes every item equally, they purchased sushi, ramen and curry twice each.
+
 ### 6. Which item was purchased first by the customer after they became a member?
 ```SQL
 WITH first_member_order AS (
@@ -181,6 +191,8 @@ WHERE ranking = 1;
 |-----------|------------|
 |A          |ramen       |
 |B          |sushi       |
+
+After customer A joined member program, they had purchased ramen, customer B - sushi. Customer C never joined member program.
 
 ### 7. Which item was purchased just before the customer became a member?
 ```SQL
@@ -216,6 +228,8 @@ GROUP BY
 |A          |curry, sushi          |
 |B          |sushi                 |
 
+Customer A purchased curry and sushi on the same day before they became a member, customer B - sushi.
+
 ### 8. What is the total items and amount spent for each member before they became a member?
 ```SQL
 SELECT
@@ -237,6 +251,8 @@ GROUP BY
 |A          |           2|         25|
 |B          |           3|         40|
 
+Before they became a member customer A had placed 2 orders and spent 25 monetary units, customer B - 3 orders and 40 monetary units.
+
 ### 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 ```SQL
 SELECT
@@ -254,6 +270,8 @@ GROUP BY
 |A          |         860|
 |B          |         940|
 |C          |         360|
+
+Customer A has 860 points, customer B - 940, customer C - 360.
 
 ### 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 ```SQL
@@ -278,6 +296,8 @@ GROUP BY
 |-----------|------------|
 |A          |        1020|
 |B          |         320|
+
+At the end of January customer A has 1020 points, customer B - 320.
 
 ### Bonus question: Join All The Things
 ```SQL
@@ -311,6 +331,8 @@ ON members.customer_id = sales.customer_id;
 |C          |2021-01-01|ramen       |   12|N        |
 |C          |2021-01-01|ramen       |   12|N        |
 |C          |2021-01-07|ramen       |   12|N        |
+
+Additional column was added specifying if order was placed by a member or not. Note that orders placed before customer had became a member have N flag.
 
 ### Bonus question: Rank All The Things
 ```SQL
@@ -354,3 +376,5 @@ FROM
 |C          |2021-01-01|ramen       |   12|N        |       |
 |C          |2021-01-01|ramen       |   12|N        |       |
 |C          |2021-01-07|ramen       |   12|N        |       |
+
+Additional column was added ranking only member orders by order date.
