@@ -196,7 +196,8 @@ GROUP BY
 |A          |curry, sushi          |
 |B          |sushi                 |
 
--- 8. What is the total items and amount spent for each member before they became a member?
+### 8. What is the total items and amount spent for each member before they became a member?
+```SQL
 SELECT
 	sales.customer_id 
 	,COUNT(menu.product_name) AS count_orders
@@ -209,8 +210,15 @@ LEFT JOIN CS1_menu menu
 ON menu.product_id = sales.product_id 
 GROUP BY 
 	sales.customer_id;
+```
+#### Output
+|customer_id|count_orders|money_spent|
+|-----------|------------|-----------|
+|A          |           2|         25|
+|B          |           3|         40|
 
--- 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+### 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+```SQL
 SELECT
 	sales.customer_id 
 	,SUM(CASE WHEN menu.product_name = 'sushi' THEN price * 2 * 10 ELSE price * 10 END)  AS bonus_points
@@ -219,8 +227,16 @@ LEFT JOIN CS1_menu menu
 ON menu.product_id = sales.product_id 
 GROUP BY 
 	sales.customer_id;
+```
+#### Output
+|customer_id|bonus_points|
+|-----------|------------|
+|A          |         860|
+|B          |         940|
+|C          |         360|
 
--- 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+### 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+```SQL
 SELECT
 	sales.customer_id
 	,SUM(CASE WHEN sales.order_date < DATE(members.join_date, '+6 days') THEN menu.price * 2 * 10 END)  AS bonus_points
@@ -232,8 +248,15 @@ LEFT JOIN CS1_menu menu
 ON menu.product_id = sales.product_id 
 GROUP BY 
 	sales.customer_id;
+```
+#### Output
+|customer_id|bonus_points|
+|-----------|------------|
+|A          |        1020|
+|B          |         200|
 
--- Bonus question: Join All The Things
+### Bonus question: Join All The Things
+```SQL
 SELECT
 	sales.customer_id 
 	,sales.order_date 
@@ -245,8 +268,28 @@ LEFT JOIN CS1_menu menu
 ON menu.product_id = sales.product_id 
 LEFT JOIN CS1_members members
 ON members.customer_id = sales.customer_id;
+```
+#### Output
+|customer_id|order_date|product_name|price|is_member|
+|-----------|----------|------------|-----|---------|
+|A          |2021-01-01|sushi       |   10|N        |
+|A          |2021-01-01|curry       |   15|N        |
+|A          |2021-01-07|curry       |   15|Y        |
+|A          |2021-01-10|ramen       |   12|Y        |
+|A          |2021-01-11|ramen       |   12|Y        |
+|A          |2021-01-11|ramen       |   12|Y        |
+|B          |2021-01-01|curry       |   15|N        |
+|B          |2021-01-02|curry       |   15|N        |
+|B          |2021-01-04|sushi       |   10|N        |
+|B          |2021-01-11|sushi       |   10|Y        |
+|B          |2021-01-16|ramen       |   12|Y        |
+|B          |2021-02-01|ramen       |   12|Y        |
+|C          |2021-01-01|ramen       |   12|N        |
+|C          |2021-01-01|ramen       |   12|N        |
+|C          |2021-01-07|ramen       |   12|N        |
 
--- Bonus question: Rank All The Things
+### Bonus question: Rank All The Things
+```SQL
 SELECT 
 	customer_id
 	,order_date
@@ -268,4 +311,22 @@ FROM
 	ON menu.product_id = sales.product_id 
 	LEFT JOIN CS1_members members
 	ON members.customer_id = sales.customer_id);
-
+```
+#### Output
+|customer_id|order_date|product_name|price|is_member|ranking|
+|-----------|----------|------------|-----|---------|-------|
+|A          |2021-01-01|sushi       |   10|N        |       |
+|A          |2021-01-01|curry       |   15|N        |       |
+|A          |2021-01-07|curry       |   15|Y        |      1|
+|A          |2021-01-10|ramen       |   12|Y        |      2|
+|A          |2021-01-11|ramen       |   12|Y        |      3|
+|A          |2021-01-11|ramen       |   12|Y        |      3|
+|B          |2021-01-01|curry       |   15|N        |       |
+|B          |2021-01-02|curry       |   15|N        |       |
+|B          |2021-01-04|sushi       |   10|N        |       |
+|B          |2021-01-11|sushi       |   10|Y        |      1|
+|B          |2021-01-16|ramen       |   12|Y        |      2|
+|B          |2021-02-01|ramen       |   12|Y        |      3|
+|C          |2021-01-01|ramen       |   12|N        |       |
+|C          |2021-01-01|ramen       |   12|N        |       |
+|C          |2021-01-07|ramen       |   12|N        |       |
