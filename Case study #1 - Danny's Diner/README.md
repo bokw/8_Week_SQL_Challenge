@@ -2,11 +2,29 @@
 ## General information
 **Case study source:** [Case Study #1 - Danny's Diner](https://8weeksqlchallenge.com/case-study-1/)
 
+**Dataset:** [Here](https://github.com/bokw/8_week_SQL_challenge/blob/main/Case%20study%20%231%20-%20Danny's%20Diner/CS1_data.sql) you can find script with dataset and table creation process using SQLite.
+
 **Problem:** Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns, how much money they’ve spent and also which menu items are their favourite. Having this deeper connection with his customers will help him deliver a better and more personalised experience for his loyal customers.
 
 **Entity relationship diagram:**
 ```mermaid
+erDiagram
+    sales {
+        String customer_id 
+        Date order_date
+        Int product_id
+    }
 
+    menu {
+        Int product_id
+        String product_name
+	Int price
+    }
+
+    members {
+        Int customer_id
+        Date join_date
+    }
 ```
 
 ## Questions and Solutions
@@ -130,7 +148,7 @@ GROUP BY
 |B          |sushi, ramen, curry|          2|
 |C          |ramen              |          3|
 
-### 6. Which item was purchased first by the customer after they became a member?\
+### 6. Which item was purchased first by the customer after they became a member?
 ```SQL
 WITH first_member_order AS (
 	SELECT 
