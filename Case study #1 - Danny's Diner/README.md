@@ -28,6 +28,11 @@ erDiagram
 MEMBERS ||--|{ SALES : do
 MENU ||--|{ SALES : contain
 ```
+The `sales` table captures all `customer_id` level purchases with an corresponding `order_date` and `product_id` information for when and what menu items were ordered.
+
+The `menu` table maps the `product_id` to the actual `product_name` and `price` of each menu item.
+
+The `members` table captures the `join_date` when a `customer_id` joined the beta version of the Danny’s Diner loyalty program.
 
 ## Questions and Solutions
 ### 1. What is the total amount each customer spent at the restaurant?
