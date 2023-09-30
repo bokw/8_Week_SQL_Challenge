@@ -9,22 +9,24 @@
 **Entity relationship diagram:**
 ```mermaid
 erDiagram
-    sales {
+    SALES {
         String customer_id 
         Date order_date
         Int product_id
     }
 
-    menu {
+    MENU {
         Int product_id
         String product_name
 	Int price
     }
 
-    members {
+    MEMBERS {
         Int customer_id
         Date join_date
     }
+MEMBERS ||--|{ SALES : has
+MENU ||--|{ SALES : has
 ```
 
 ## Questions and Solutions
