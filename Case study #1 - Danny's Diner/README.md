@@ -277,9 +277,10 @@ Customer A has 860 points, customer B - 940, customer C - 360.
 ```SQL
 SELECT
 	sales.customer_id
-	,SUM(CASE WHEN sales.order_date < DATE(members.join_date, '+6 days') THEN menu.price * 2 * 10 
-			  WHEN sales.order_date > DATE(members.join_date, '+6 days') AND menu.product_name = 'sushi' THEN menu.price * 2 * 10 
-			  WHEN sales.order_date > DATE(members.join_date, '+6 days') AND menu.product_name <> 'sushi' THEN menu.price * 1 * 10
+	,SUM(CASE
+		WHEN sales.order_date < DATE(members.join_date, '+6 days') THEN menu.price * 2 * 10 
+		WHEN sales.order_date > DATE(members.join_date, '+6 days') AND menu.product_name = 'sushi' THEN menu.price * 2 * 10 
+		WHEN sales.order_date > DATE(members.join_date, '+6 days') AND menu.product_name <> 'sushi' THEN menu.price * 1 * 10
 		END)  AS bonus_points
 FROM CS1_sales sales
 INNER JOIN CS1_members members
