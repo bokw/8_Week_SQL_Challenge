@@ -37,7 +37,7 @@ GROUP BY
 SELECT
 	coc.customer_id 
 	,pn.pizza_name 
-	,COUNT(coc.order_id) AS delivered_pizza_count
+	,COUNT(coc.order_id) AS pizzas_ordered
 FROM CS2_customer_orders_clean coc
 LEFT JOIN CS2_pizza_names pn
 ON pn.pizza_id = coc.pizza_id 
