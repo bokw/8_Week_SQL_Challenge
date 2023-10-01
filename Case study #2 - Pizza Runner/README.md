@@ -83,6 +83,12 @@ SELECT
 	COUNT(order_time) AS ordered_pizzas
 FROM CS2_customer_orders_clean;
 ```
+#### Output
+|ordered_pizzas|
+|--------------|
+|            14|
+
+In total there were 14 pizzas ordered.
 
 ### 2. How many unique customer orders were made?
 ```SQL
@@ -90,6 +96,12 @@ SELECT
 	COUNT(DISTINCT order_id) AS unique_orders
 FROM CS2_customer_orders_clean;
 ```
+#### Output
+|unique_orders|
+|-------------|
+|           10|
+
+In total there were 10 orders.
 
 ### 3. How many successful orders were delivered by each runner?
 ```SQL
@@ -100,6 +112,14 @@ FROM CS2_runner_orders_clean
 WHERE pickup_time IS NOT NULL 
 GROUP BY runner_id;
 ```
+#### Output
+|runner_id|unique_delivered_orders|
+|---------|-----------------------|
+|        1|                      4|
+|        2|                      3|
+|        3|                      1|
+
+Runner 1 delivered 4 orders, runner 2 - 3 orders, runner 3 - 1 order.
 
 ### 4. How many of each type of pizza was delivered?
 ```SQL
@@ -115,13 +135,20 @@ ON pn.pizza_id = coc.pizza_id
 GROUP BY 
 	pn.pizza_name;
 ```
+#### Output
+|pizza_name|delivered_pizza_count|
+|----------|---------------------|
+|Meatlovers|                    9|
+|Vegetarian|                    3|
+
+Meatlovers pizza was delivered 9 times, Vegetarian - 3 times.
 
 ### 5. How many Vegetarian and Meatlovers were ordered by each customer?
 ```SQL
 SELECT
 	coc.customer_id 
 	,pn.pizza_name 
-	,COUNT(coc.order_id) AS delivered_pizza_count
+	,COUNT(coc.order_id) AS pizzas_ordered
 FROM CS2_customer_orders_clean coc
 LEFT JOIN CS2_pizza_names pn
 ON pn.pizza_id = coc.pizza_id 
@@ -129,6 +156,19 @@ GROUP BY
 	coc.customer_id 
 	,pn.pizza_name;
 ```
+#### Output
+|customer_id|pizza_name|pizzas_ordered|
+|-----------|----------|--------------|
+|        101|Meatlovers|             2|
+|        101|Vegetarian|             1|
+|        102|Meatlovers|             2|
+|        102|Vegetarian|             1|
+|        103|Meatlovers|             3|
+|        103|Vegetarian|             1|
+|        104|Meatlovers|             3|
+|        105|Vegetarian|             1|
+
+Customer 101 and 102 ordered 2 Meatlovers and 1 Vegetarian pizza, customer 103 ordered 3 Meatlovers and 1 Vegetarian, customer 104 ordered 3 Meatlovers and customer 105 ordered only 1 Vegetarian pizza. 
 
 ### 6. What was the maximum number of pizzas delivered in a single order?
 ```SQL
@@ -143,6 +183,10 @@ GROUP BY
 ORDER BY max_pizzas_delivered_at_once DESC
 LIMIT 1;
 ```
+#### Output
+|max_pizzas_delivered_at_once|
+|----------------------------|
+|                           3|
 
 ### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
 ```SQL
@@ -161,6 +205,16 @@ AND roc.cancellation IS NULL
 GROUP BY 
 	coc.customer_id; 
 ```
+#### Output
+|customer_id|pizzas_with_no_change|pizzas_with_at_least_one_change|
+|-----------|---------------------|-------------------------------|
+|        101|                    2|                              0|
+|        102|                    3|                              0|
+|        103|                    0|                              3|
+|        104|                    1|                              2|
+|        105|                    0|                              1|
+
+Customers 101 and 102 had pizzas with no change. Customers 103 and 105 had pizzas with at least one change. Customer 104 had pizzas with and without changes made to them.
 
 ### 8. How many pizzas were delivered that had both exclusions and extras?
 ```SQL
@@ -174,6 +228,12 @@ WHERE
 	coc.exclusions IS NOT NULL
 	AND coc.extras IS NOT NULL;
 ```
+#### Output
+|pizzas_with_exclusions_and_extras|
+|---------------------------------|
+|                                1|
+
+There was only one pizza that had both - exclusions and extras.
 
 #### 9. What was the total volume of pizzas ordered for each hour of the day?
 ```SQL
@@ -186,6 +246,17 @@ GROUP BY
 ORDER BY 
 	order_hour;
 ```
+#### Output
+|order_hour|order_count|
+|----------|-----------|
+|11        |          1|
+|13        |          3|
+|18        |          3|
+|19        |          1|
+|21        |          3|
+|23        |          3|
+
+At hour 13, 18 and 23 customers put orders for 3 pizzas, at hour 11 and 19 - 1 pizza.
 
 ### 10. What was the volume of orders for each day of the week?
 ```SQL
@@ -206,4 +277,12 @@ GROUP BY
 ORDER BY 
 	STRFTIME('%w', order_time);
 ```
+#### Output
+|order_weekday|order_count|
+|-------------|-----------|
+|Wednesday    |          5|
+|Thursday     |          3|
+|Friday       |          1|
+|Saturday     |          5|
 
+Monday, Tuesday and Sunday had no pizza orders. Wednesday and Saturday were the most active - with 5 pizzas each, Thursday - 3 pizzas, Friday - 1 pizza.
