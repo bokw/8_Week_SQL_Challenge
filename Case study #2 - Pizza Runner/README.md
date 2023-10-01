@@ -77,21 +77,21 @@ Changes that were done in `runner_orders`:
 
 ## A. Pizza metrics
 ### Questions and Solutions
-#### 1. How many pizzas were ordered?
+### 1. How many pizzas were ordered?
 ```SQL
 SELECT 
 	COUNT(order_time) AS ordered_pizzas
 FROM CS2_customer_orders_clean;
 ```
 
-#### 2. How many unique customer orders were made?
+### 2. How many unique customer orders were made?
 ```SQL
 SELECT 
 	COUNT(DISTINCT order_id) AS unique_orders
 FROM CS2_customer_orders_clean;
 ```
 
-#### 3. How many successful orders were delivered by each runner?
+### 3. How many successful orders were delivered by each runner?
 ```SQL
 SELECT 
 	runner_id 
@@ -101,7 +101,7 @@ WHERE pickup_time IS NOT NULL
 GROUP BY runner_id;
 ```
 
-#### 4. How many of each type of pizza was delivered?
+### 4. How many of each type of pizza was delivered?
 ```SQL
 SELECT 
 	pn.pizza_name 
@@ -116,7 +116,7 @@ GROUP BY
 	pn.pizza_name;
 ```
 
-#### 5. How many Vegetarian and Meatlovers were ordered by each customer?
+### 5. How many Vegetarian and Meatlovers were ordered by each customer?
 ```SQL
 SELECT
 	coc.customer_id 
@@ -130,7 +130,7 @@ GROUP BY
 	,pn.pizza_name;
 ```
 
-#### 6. What was the maximum number of pizzas delivered in a single order?
+### 6. What was the maximum number of pizzas delivered in a single order?
 ```SQL
 SELECT 
 	COUNT(order_time) AS max_pizzas_delivered_at_once 
@@ -144,7 +144,7 @@ ORDER BY max_pizzas_delivered_at_once DESC
 LIMIT 1;
 ```
 
-#### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
 ```SQL
 SELECT
 	coc.customer_id 
@@ -162,7 +162,7 @@ GROUP BY
 	coc.customer_id; 
 ```
 
-#### 8. How many pizzas were delivered that had both exclusions and extras?
+### 8. How many pizzas were delivered that had both exclusions and extras?
 ```SQL
 SELECT
 	COUNT(coc.order_time) AS pizzas_with_exclusions_and_extras
@@ -187,7 +187,7 @@ ORDER BY
 	order_hour;
 ```
 
-#### 10. What was the volume of orders for each day of the week?
+### 10. What was the volume of orders for each day of the week?
 ```SQL
 SELECT 
 	CASE CAST(STRFTIME('%w', order_time) AS INT)
