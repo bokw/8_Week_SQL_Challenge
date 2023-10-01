@@ -286,3 +286,7 @@ ORDER BY
 |Saturday     |          5|
 
 Monday, Tuesday and Sunday had no pizza orders. Wednesday and Saturday were the most active - with 5 pizzas each, Thursday - 3 pizzas, Friday - 1 pizza.
+
+## B. Runner and customer experience
+### Questions and Solutions
+### 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
