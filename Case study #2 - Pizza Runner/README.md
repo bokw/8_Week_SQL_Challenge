@@ -290,3 +290,172 @@ Monday, Tuesday and Sunday had no pizza orders. Wednesday and Saturday were the 
 ## B. Runner and customer experience
 ### Questions and Solutions
 ### 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+```SQL
+SELECT 
+	'Week ' || STRFTIME('%W', registration_date) AS week
+	,COUNT(runner_id) AS runner_count
+FROM CS2_runners 
+GROUP BY
+	STRFTIME('%W', registration_date)
+ORDER BY week;
+```
+#### Output
+|week   |runner_count|
+|-------|------------|
+|Week 00|           2|
+|Week 01|           1|
+|Week 02|           1|
+
+**Note:** We have 'Week 00' due to how SQLite calculates weeks. If week is a part of last years week it gets counted as zero week.
+
+For first week there were 2 signees. For two following weeks - one per week.
+
+### 2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+```SQL
+WITH order_time AS (
+	SELECT DISTINCT
+		roc.order_id 
+		,roc.runner_id 
+		,roc.pickup_time 
+		,coc.order_time 
+	FROM CS2_runner_orders_clean roc
+	INNER JOIN CS2_customer_orders_clean coc 
+	ON coc.order_id = roc.order_id
+	WHERE roc.pickup_time IS NOT NULL
+)
+
+SELECT 
+	runner_id
+	,ROUND(AVG(CAST((JULIANDAY(pickup_time) - JULIANDAY(order_time)) * 24 * 60 AS REAL)), 0) AS average_time_order_to_pickup_min
+FROM order_time
+GROUP BY 
+	runner_id;
+```
+#### Output
+|runner_id|average_time_order_to_pickup_min|
+|---------|--------------------------------|
+|        1|                            14.0|
+|        2|                            20.0|
+|        3|                            10.0|
+
+Runner 3 was the fastest taking only 10 minutes, runner 1 - 14 minutes and runner 2 took the longest - 20 minutes.
+
+### 3. Is there any relationship between the number of pizzas and how long the order takes to prepare?
+```SQL
+WITH orders_table AS (
+	SELECT DISTINCT 
+		coc.order_id
+		,COUNT(coc.pizza_id) AS pizzas_per_order
+		,ROUND(CAST((JULIANDAY(pickup_time) - JULIANDAY(order_time)) * 24 * 60 AS REAL), 0) AS order_to_pickup
+	FROM CS2_customer_orders_clean coc 
+	INNER JOIN CS2_runner_orders_clean roc 
+	ON roc.order_id = coc.order_id
+	WHERE roc.pickup_time IS NOT NULL
+	GROUP BY coc.order_id
+)
+
+SELECT
+	pizzas_per_order
+	,COUNT(order_id) AS order_count
+	,ROUND(AVG(order_to_pickup), 0) AS average_order_to_pickup
+	,ROUND(order_to_pickup / pizzas_per_order, 0) AS average_time_per_pizza
+FROM orders_table
+GROUP BY pizzas_per_order;
+```
+#### Output
+|pizzas_per_order|order_count|average_order_to_pickup|average_time_per_pizza|
+|----------------|-----------|-----------------------|----------------------|
+|               1|          5|                   12.0|                  11.0|
+|               2|          2|                   19.0|                  11.0|
+|               3|          1|                   29.0|                  10.0|
+
+The more pizzas per order there is the faster order is ready to pick up. For order with three pizzas it takes 10 minutes per pizza.
+
+#### 4. What was the average distance travelled for each customer?
+```SQL
+SELECT DISTINCT 
+	coc.customer_id  
+	,ROUND(AVG(roc.distance_km), 2) AS average_distance
+FROM CS2_customer_orders_clean coc 
+INNER JOIN CS2_runner_orders_clean roc 
+ON roc.order_id = coc.order_id
+WHERE roc.pickup_time IS NOT NULL
+GROUP BY coc.customer_id;
+```
+#### Output
+|customer_id|average_distance|
+|-----------|----------------|
+|        101|            20.0|
+|        102|           16.73|
+|        103|            23.4|
+|        104|            10.0|
+|        105|            25.0|
+
+Average distance travelled for customer 101 was 20 km, 102 - 16.73 km, 103 - 23.4 km, 104 - 10 km and 105 - 25 km.
+
+### 5. What was the difference between the longest and shortest delivery times for all orders?
+```SQL
+WITH orders_table AS (
+	SELECT DISTINCT 
+		coc.order_id
+		,ROUND(CAST((JULIANDAY(pickup_time) - JULIANDAY(order_time)) * 24 * 60 AS REAL), 0) AS order_to_pickup
+	FROM CS2_customer_orders_clean coc 
+	INNER JOIN CS2_runner_orders_clean roc 
+	ON roc.order_id = coc.order_id
+	WHERE roc.pickup_time IS NOT NULL
+	GROUP BY coc.order_id
+)
+
+SELECT 
+	MAX(order_to_pickup) - MIN(order_to_pickup) AS diff_min_and_max_delivery_time
+FROM orders_table;
+```
+#### Output
+|diff_min_and_max_delivery_time|
+|------------------------------|
+|                          19.0|
+
+Difference between maximum and minumum delivery time was 19 minutes.
+
+### 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
+```SQL
+SELECT 
+	roc.order_id 
+	,roc.runner_id 
+	,roc.distance_km 
+	,ROUND(roc.distance_km  / (roc.duration_min / 60.0), 1) AS average_speed_km_h
+FROM CS2_runner_orders_clean roc 
+WHERE roc.pickup_time IS NOT NULL
+ORDER BY runner_id, average_speed_km_h;
+```
+#### Output
+|order_id|runner_id|distance_km|average_speed_km_h|
+|--------|---------|-----------|------------------|
+|       1|        1|       20.0|              37.5|
+|       3|        1|       13.4|              40.2|
+|       2|        1|       20.0|              44.4|
+|      10|        1|       10.0|              60.0|
+|       4|        2|       23.4|              35.1|
+|       7|        2|       25.0|              60.0|
+|       8|        2|       23.4|              93.6|
+|       5|        3|         10|              40.0|
+
+Runner 1 had speeds between 37.5 km/h and 60 km/h, runner 2 - between 35.1 km/h and 93.6 km/h, runner 3 had only one order that took him 40 km/h.
+
+### 7. What is the successful delivery percentage for each runner?
+```SQL
+SELECT 
+	roc.runner_id 
+	,COUNT(CASE WHEN roc.cancellation IS NULL THEN roc.order_id END) * 100.0 / COUNT(roc.order_id) AS successful_delivery_rate
+FROM CS2_runner_orders_clean roc 
+GROUP BY 
+	roc.runner_id;
+```
+#### Output
+|runner_id|successful_delivery_rate|
+|---------|------------------------|
+|        1|                   100.0|
+|        2|                    75.0|
+|        3|                    50.0|
+
+Runner 1 had 100% successful delivery rate, runner 2 - 75%, runner 3 - 50%.
