@@ -66,14 +66,17 @@ Pizza recipes are stored in the `pizza_recipes` table.
 Pizza toppings are stored in the `pizza_topings` table with their corresponding `topping_id` value.
 
 ### Data cleanup
-Table `customer_orders` and `runner_orders` had to be cleaned up for further usage. For that reason two new views were created `customer_orders_clean` and `runner_orders_clean`. Code can be viewed [here](https://github.com/bokw/8_week_SQL_challenge/blob/main/Case%20study%20%232%20-%20Pizza%20Runner/CS2_cleanup.sql).
+Table `customer_orders` and `runner_orders` had to be cleaned up for further usage. Table `pizza_recipes` had to be restructured. For that reason three new views were created `customer_orders_clean`, `runner_orders_clean` and `pizza_recipes_clean`. Code can be viewed [here](https://github.com/bokw/8_week_SQL_challenge/blob/main/Case%20study%20%232%20-%20Pizza%20Runner/CS2_cleanup.sql).
 
 Changes that were done in `customer_orders`:
 * Empty strings and 'null' words were changed into proper NULL values.
 
 Changes that were done in `runner_orders`:
 * Empty strings and 'null' words were changed into proper NULL values.
-* Column `distance` and `duration` were cleaned up to have only numerical values. 
+* Column `distance` and `duration` were cleaned up to have only numerical values.
+
+Changes that were done in `pizza_recipes`:
+* Each recipe was stored in a string format with each ingredient written after comma. To fix that recipes were split to contain one product per row.
 
 ## A. Pizza metrics
 ### Questions and Solutions
