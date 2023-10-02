@@ -40,3 +40,30 @@ SELECT
 		ELSE cancellation
 	END AS cancellation
 FROM CS2_runner_orders;
+
+-- CS2_pizza_recipes cleanup
+CREATE VIEW CS2_pizza_recipes_clean AS
+WITH split(pizza_id, topping, string) AS (
+	SELECT 
+		pizza_id
+		,NULL
+		,toppings||','
+	FROM CS2_pizza_recipes
+	UNION ALL
+	SELECT
+		pizza_id 
+		,TRIM(SUBSTR(string, 0, INSTR(string, ',')), ' ')
+		,SUBSTR(string, INSTR(string, ',') + 1) 
+	FROM split 
+	WHERE 
+		string <> ''
+)
+
+SELECT 
+	pizza_id
+	,CAST(topping AS INT) AS topping
+FROM split
+WHERE 
+	topping <> ''
+ORDER BY 
+	pizza_id ASC;
