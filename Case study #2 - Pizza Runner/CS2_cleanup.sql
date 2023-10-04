@@ -2,7 +2,8 @@
 -- CS2_customer_orders cleanup
 CREATE VIEW CS2_customer_orders_clean AS 
 SELECT 
-	order_id 
+	ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY order_id, pizza_id, exclusions, extras ASC) AS id
+	,order_id 
 	,customer_id 
 	,pizza_id 
 	,CASE 
