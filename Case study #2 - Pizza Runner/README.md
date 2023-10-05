@@ -78,8 +78,8 @@ Changes that were done in `runner_orders`:
 Changes that were done in `pizza_recipes`:
 * Each recipe was stored in a string format with each ingredient written after comma. To fix that recipes were split to contain one product per row.
 
-## A. Pizza metrics
 ## Questions and Solutions
+## A. Pizza metrics
 ### 1. How many pizzas were ordered?
 ```SQL
 SELECT 
@@ -291,7 +291,6 @@ ORDER BY
 Monday, Tuesday and Sunday had no pizza orders. Wednesday and Saturday were the most active - with 5 pizzas each, Thursday - 3 pizzas, Friday - 1 pizza.
 
 ## B. Runner and customer experience
-### Questions and Solutions
 ### 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 ```SQL
 SELECT 
@@ -464,7 +463,6 @@ GROUP BY
 Runner 1 had 100% successful delivery rate, runner 2 - 75%, runner 3 - 50%.
 
 ## C. Ingredient optimisation
-### Questions and Solutions
 ### 1. What are the standard ingredients for each pizza?
 ```SQL
 SELECT 
@@ -858,7 +856,7 @@ GROUP BY
 |      10|             1|Meat Lovers: BBQ Sauce, Bacon, Beef, Cheese, Chicken, Mushrooms, Pepperoni, Salami      |
 |      10|             2|Meat Lovers: BBQ Sauce, 2x Bacon, Beef, 2x Cheese, Chicken, Mushrooms, Pepperoni, Salami|
 
-#### 6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
+### 6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
 ```SQL
 WITH RECURSIVE 
 	split_ext(id, order_id, pizza_id, extras, extra, string) AS (
@@ -970,3 +968,176 @@ ORDER BY
 |Onions      |           4|
 
 The most often needed ingredient was cheese (15 times) follwed by mushrooms and bacon (14 times each).
+
+## C. Pricing and ratings
+### 1. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
+```SQL
+SELECT 
+	SUM(CASE 
+		WHEN pn.pizza_name = 'Meatlovers' THEN 12 ELSE 10
+	END) AS earnings
+FROM CS2_customer_orders_clean coc
+INNER JOIN CS2_runner_orders_clean roc
+ON roc.order_id = coc.order_id 
+AND roc.cancellation IS NULL
+LEFT JOIN CS2_pizza_names pn 
+ON pn.pizza_id = coc.pizza_id;
+```
+#### Output
+|earnings|
+|--------|
+|     138|
+
+Pizzeria had made $138.
+
+### 2. What if there was an additional $1 charge for any pizza extras? 
+```SQL
+WITH RECURSIVE split(extra, string) AS (
+	SELECT 
+		NULL
+		,extras||','
+	FROM CS2_customer_orders_clean
+	UNION ALL
+	SELECT 
+		TRIM(SUBSTR(string, 0, INSTR(string, ',')), ' ')
+		,SUBSTR(string, INSTR(string, ',') + 1) 
+	FROM split 
+	WHERE 
+		string <> ''
+)
+SELECT 
+	SUM(earnings) AS earnings_with_extra_charge
+FROM
+	(
+	SELECT 
+		COUNT(extra) AS earnings
+	FROM split
+	WHERE extra IS NOT NULL
+	UNION ALL 
+	SELECT 
+		SUM(CASE 
+			WHEN pn.pizza_name = 'Meatlovers' THEN 12 ELSE 10
+		END) AS earnings
+	FROM CS2_customer_orders_clean coc
+	INNER JOIN CS2_runner_orders_clean roc
+	ON roc.order_id = coc.order_id 
+	AND roc.cancellation IS NULL
+	LEFT JOIN CS2_pizza_names pn 
+	ON pn.pizza_id = coc.pizza_id
+	);
+```
+#### Output
+|earnings_with_extra_charge|
+|--------------------------|
+|                       144|
+
+If each topping would add $1 to the price then in total pizzeria would earn $144.
+		       
+### 3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
+```SQL
+CREATE TABLE IF NOT EXISTS CS2_runner_ratings (
+	order_id INT NOT NULL
+	,rating INT NULL
+);
+INSERT INTO CS2_runner_ratings
+	SELECT 
+		roc.order_id
+		,ABS(RANDOM())%(6-1) + 1 AS rating
+	FROM CS2_runner_orders_clean roc
+	WHERE roc.cancellation IS NULL;
+
+SELECT * FROM CS2_runner_ratings; 
+```
+#### Output:
+|order_id|rating|
+|--------|------|
+|       1|     3|
+|       2|     1|
+|       3|     1|
+|       4|     1|
+|       5|     2|
+|       7|     3|
+|       8|     2|
+|      10|     5|
+
+### 4. Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries: customer_id, order_id, runner_id, rating, order_time, pickup_time, time between order and pickup, delivery duration, average speed, total number of pizzas?
+```SQL
+SELECT DISTINCT 
+	coc.customer_id 
+	,roc.order_id 
+	,roc.runner_id 
+	,crr.rating 
+	,coc.order_time 
+	,roc.pickup_time 
+	,ROUND(CAST((JULIANDAY(roc.pickup_time) - JULIANDAY(coc.order_time)) * 24 * 60 AS REAL), 0) AS time_between_order_and_pickup_min
+	,roc.duration_min 
+	,ROUND(roc.distance_km  / (roc.duration_min / 60.0), 1) AS average_speed_km_h
+	,COUNT(coc.id) AS total_number_of_delivered_pizzas
+FROM CS2_runner_orders_clean roc 
+INNER JOIN CS2_customer_orders_clean coc 
+ON coc.order_id = roc.order_id 
+INNER JOIN CS2_runner_ratings crr
+ON crr.order_id = roc.order_id 
+GROUP BY 
+	coc.customer_id 
+	,roc.order_id 
+	,roc.runner_id 
+	,crr.rating 
+	,coc.order_time 
+	,roc.pickup_time 
+	,roc.duration_min 
+	,roc.distance_km
+ORDER BY
+	roc.order_id;
+```
+#### Output
+|customer_id|order_id|runner_id|rating|order_time         |pickup_time        |time_between_order_and_pickup_min|duration_min|average_speed_km_h|total_number_of_delivered_pizzas|
+|-----------|--------|---------|------|-------------------|-------------------|---------------------------------|------------|------------------|--------------------------------|
+|        101|       1|        1|     3|2020-01-01 18:05:02|2020-01-01 18:15:34|                             11.0|        32.0|              37.5|                               1|
+|        101|       2|        1|     1|2020-01-01 19:00:52|2020-01-01 19:10:54|                             10.0|        27.0|              44.4|                               1|
+|        102|       3|        1|     1|2020-01-02 23:51:23|2020-01-03 00:12:37|                             21.0|        20.0|              40.2|                               2|
+|        103|       4|        2|     1|2020-01-04 13:23:46|2020-01-04 13:53:03|                             29.0|          40|              35.1|                               3|
+|        104|       5|        3|     2|2020-01-08 21:00:29|2020-01-08 21:10:57|                             10.0|          15|              40.0|                               1|
+|        105|       7|        2|     3|2020-01-08 21:20:29|2020-01-08 21:30:45|                             10.0|        25.0|              60.0|                               1|
+|        102|       8|        2|     2|2020-01-09 23:54:33|2020-01-10 00:15:02|                             20.0|        15.0|              93.6|                               1|
+|        104|      10|        1|     5|2020-01-11 18:34:49|2020-01-11 18:50:20|                             16.0|        10.0|              60.0|                               2|
+
+### 5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
+```SQL
+SELECT 
+	SUM(balance) AS end_balance
+FROM 
+	(
+	SELECT 
+		SUM(roc.distance_km) * -0.3 AS balance
+	FROM CS2_runner_orders_clean roc 
+	UNION ALL
+	SELECT 
+		SUM(CASE 
+			WHEN coc.pizza_id = 1 THEN 12 ELSE 10
+		END) AS balance
+	FROM CS2_customer_orders_clean coc
+	INNER JOIN CS2_runner_orders_clean roc
+	ON roc.order_id = coc.order_id 
+	AND roc.cancellation IS NULL
+	);
+```
+#### Output
+|end_balance|
+|-----------|
+|      94.44|
+
+After accounting for costs there is $94.44 left.
+
+## E. Bonus question
+#### 1. If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
+```SQL
+INSERT INTO CS2_pizza_names 
+	VALUES
+		(3, 'Supreme');
+	
+INSERT INTO CS2_pizza_recipes 
+	VALUES
+		(3, '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12');
+```
+
