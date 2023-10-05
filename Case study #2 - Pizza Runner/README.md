@@ -79,7 +79,7 @@ Changes that were done in `pizza_recipes`:
 * Each recipe was stored in a string format with each ingredient written after comma. To fix that recipes were split to contain one product per row.
 
 ## A. Pizza metrics
-### Questions and Solutions
+## Questions and Solutions
 ### 1. How many pizzas were ordered?
 ```SQL
 SELECT 
